@@ -15,10 +15,6 @@ Tools::~Tools() {}
 VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
                               const vector<VectorXd> &ground_truth)
 {
-  /**
-   * TODO: Calculate the RMSE here. DONE
-   */
-  cout << "RMSE" << endl;
   VectorXd rmse(4);
   rmse << 0, 0, 0, 0;
 
@@ -28,16 +24,16 @@ VectorXd Tools::CalculateRMSE(const vector<VectorXd> &estimations,
     return rmse;
   }
 
+  VectorXd residual(4);
   for (int i = 0; i < estimations.size(); ++i)
   {
-    VectorXd residual = estimations[i] - ground_truth[i];
+    residual = estimations[i] - ground_truth[i];
     residual = residual.array() * residual.array();
     rmse += residual;
   }
   rmse = rmse / estimations.size();
-  // rmse = rmse.array().sqrt();
-  rmse = sqrt(rmse.array());
-  cout << "RMSE DONE" << endl;
+  rmse = rmse.array().sqrt();
+  cout << "Rmse = " << rmse << endl;
   return rmse;
 }
 
@@ -47,7 +43,6 @@ MatrixXd Tools::CalculateJacobian(const VectorXd &x_state)
    * TODO:
    * Calculate a Jacobian here. DONE
    */
-  cout << "CalculateJacobian" << endl;
   MatrixXd Hj(3, 4);
   // recover state parameters
   float px = x_state(0);
@@ -59,26 +54,18 @@ MatrixXd Tools::CalculateJacobian(const VectorXd &x_state)
   float c1 = px * px + py * py;
 
   //Avoid division by 0
-    if(c1 < 0.00001)
-    {
-        px += 0.001;
-        py += 0.001;
-        c1 = px * px + py * py;
-    }
+  if(c1 < 0.00001)
+  {
+      px += 0.001;
+      py += 0.001;
+      c1 = px * px + py * py;
+  }
   float c2 = sqrt(c1);
   float c3 = (c1 * c2);
-
-  // // check division by zero
-  // if (fabs(c1) < 0.0001)
-  // {
-  //   std::cout << "CalculateJacobian () - Error - Division by Zero" << std::endl;
-  //   return Hj;
-  // }
 
   // compute the Jacobian matrix
   Hj << (px / c2), (py / c2), 0, 0,
       -(py / c1), (px / c1), 0, 0,
       py * (vx * py - vy * px) / c3, px * (px * vy - py * vx) / c3, px / c2, py / c2;
-cout << "CalculateJacobian Done" << endl;
   return Hj;
 }
